@@ -152,7 +152,7 @@ type Conn struct {
 // Connect establishes a connection to a Cassandra node.
 func Connect(host *HostInfo, addr string, cfg *ConnConfig,
 	errorHandler ConnErrorHandler, session *Session) (*Conn, error) {
-
+  fmt.Println("5.------------conn.go-------155-------dialing to cassandran node---")
 	var (
 		err  error
 		conn net.Conn
@@ -210,6 +210,7 @@ func Connect(host *HostInfo, addr string, cfg *ConnConfig,
 	go c.serve()
 
 	if err := c.startup(); err != nil {
+		fmt.Println("connetion is closed->>>")
 		conn.Close()
 		return nil, err
 	}
@@ -274,6 +275,7 @@ func (c *Conn) startup() error {
 	case *readyFrame:
 		return nil
 	case *authenticateFrame:
+
 		return c.authenticateHandshake(v)
 	default:
 		return NewErrProtocol("Unknown type of response to startup frame: %s", v)

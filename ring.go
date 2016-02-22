@@ -1,6 +1,7 @@
 package gocql
 
 import (
+//	"fmt"
 	"sync"
 )
 

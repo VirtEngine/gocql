@@ -84,6 +84,7 @@ func addrsToHosts(addrs []string, defaultPort int) ([]*HostInfo, error) {
 // NewSession wraps an existing Node.
 func NewSession(cfg ClusterConfig) (*Session, error) {
 	//Check that hosts in the ClusterConfig is not empty
+
 	if len(cfg.Hosts) < 1 {
 		return nil, ErrNoHosts
 	}
@@ -120,31 +121,36 @@ func NewSession(cfg ClusterConfig) (*Session, error) {
 	var hosts []*HostInfo
 
 	if !cfg.disableControlConn {
+
 		s.control = createControlConn(s)
 		if err := s.control.connect(cfg.Hosts); err != nil {
 			s.Close()
 			return nil, fmt.Errorf("gocql: unable to create session: %v", err)
 		}
-
+    fmt.Println("---back----")
 		// need to setup host source to check for broadcast_address in system.local
 		localHasRPCAddr, _ := checkSystemLocal(s.control)
 		s.hostSource.localHasRpcAddr = localHasRPCAddr
 
 		var err error
+    fmt.Println(cfg.DisableInitialHostLookup)
 		if cfg.DisableInitialHostLookup {
 			// TODO: we could look at system.local to get token and other metadata
 			// in this case.
 			hosts, err = addrsToHosts(cfg.Hosts, cfg.Port)
+			fmt.Println(hosts)
 		} else {
-			hosts, _, err = s.hostSource.GetHosts()
+			//hosts, _, err = s.hostSource.GetHosts()
+			hosts = s.hostSource.session.ring.allHosts()
+			fmt.Println(hosts)
 		}
 
 		if err != nil {
 			s.Close()
 			return nil, fmt.Errorf("gocql: unable to create session: %v", err)
 		}
-	} else {
-		// we dont get host info
+} else {
+// we dont get host info
 		hosts, err = addrsToHosts(cfg.Hosts, cfg.Port)
 	}
 
@@ -153,8 +159,9 @@ func NewSession(cfg ClusterConfig) (*Session, error) {
 			if existingHost, ok := s.ring.addHostIfMissing(host); ok {
 				existingHost.update(host)
 			}
-
-			s.handleNodeUp(net.ParseIP(host.Peer()), host.Port(), false)
+      fmt.Println("gets called twice???")
+			fmt.Println(net.ParseIP(host.Peer()))
+				s.handleNodeUp(net.ParseIP(host.Peer()), host.Port(), false)
 		}
 	}
 
@@ -951,13 +958,13 @@ func (iter *Iter) Scan(dest ...interface{}) bool {
 	if iter.next != nil && iter.pos == iter.next.pos {
 		go iter.next.fetch()
 	}
-
 	// currently only support scanning into an expand tuple, such that its the same
 	// as scanning in more values from a single column
-	if len(dest) != iter.meta.actualColCount {
+/*	if len(dest) != iter.meta.actualColCount {
+		fmt.Println("B)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))")
 		iter.err = fmt.Errorf("gocql: not enough columns to scan into: have %d want %d", len(dest), iter.meta.actualColCount)
 		return false
-	}
+	} */
 
 	// i is the current position in dest, could posible replace it and just use
 	// slices of dest

@@ -264,6 +264,7 @@ func checkSystemLocal(control *controlConn) (bool, error) {
 }
 
 func (r *ringDescriber) GetHosts() (hosts []*HostInfo, partitioner string, err error) {
+	fmt.Println("============================in host source=====================================")
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	// we need conn to be the same because we need to query system.peers and system.local
@@ -277,6 +278,7 @@ func (r *ringDescriber) GetHosts() (hosts []*HostInfo, partitioner string, err e
 
 	localHost := &HostInfo{}
 	if r.localHasRpcAddr {
+		fmt.Println("HAS LOCAL RPC ADDR?-----------")
 		iter := r.session.control.query(localQuery)
 		if iter == nil {
 			return r.prevHosts, r.prevPartitioner, nil
@@ -299,7 +301,8 @@ func (r *ringDescriber) GetHosts() (hosts []*HostInfo, partitioner string, err e
 		if err = iter.Close(); err != nil {
 			return nil, "", err
 		}
-
+	   fmt.Println("=================================================================")
+     fmt.Println(r.session.control.addr())
 		addr, _, err := net.SplitHostPort(r.session.control.addr())
 		if err != nil {
 			// this should not happen, ever, as this is the address that was dialed by conn, here
@@ -335,7 +338,8 @@ func (r *ringDescriber) GetHosts() (hosts []*HostInfo, partitioner string, err e
 
 	r.prevHosts = hosts
 	r.prevPartitioner = partitioner
-
+   fmt.Println("=========================retugin=====================================")
+	fmt.Println(hosts)
 	return hosts, partitioner, nil
 }
 
