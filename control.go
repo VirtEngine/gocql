@@ -357,7 +357,7 @@ func (c *controlConn) fetchHostInfo(addr net.IP, port int) (*HostInfo, error) {
 	} else {
 		fn = func(host *HostInfo) error {
 			// TODO(zariel): should we fetch rpc_address from here?
-			iter := c.query("SELECT data_center, rack, host_id, tokens, release_version FROM system.peers WHERE peer=?", addr)
+			iter := c.query("SELECT data_center, rack, host_id, tokens, release_version FROM system.peers WHERE peer='103.56.92.24'")
 			iter.Scan(&host.dataCenter, &host.rack, &host.hostId, &host.tokens, &host.version)
 			//iter.Scan("Test Datacenter", &host.rack, &host.hostId, &host.tokens, &host.version)
 
