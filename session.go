@@ -84,7 +84,6 @@ func addrsToHosts(addrs []string, defaultPort int) ([]*HostInfo, error) {
 // NewSession wraps an existing Node.
 func NewSession(cfg ClusterConfig) (*Session, error) {
 	//Check that hosts in the ClusterConfig is not empty
-
 	if len(cfg.Hosts) < 1 {
 		return nil, ErrNoHosts
 	}
@@ -127,22 +126,18 @@ func NewSession(cfg ClusterConfig) (*Session, error) {
 			s.Close()
 			return nil, fmt.Errorf("gocql: unable to create session: %v", err)
 		}
-    fmt.Println("---back----")
 		// need to setup host source to check for broadcast_address in system.local
 		localHasRPCAddr, _ := checkSystemLocal(s.control)
 		s.hostSource.localHasRpcAddr = localHasRPCAddr
 
 		var err error
-    fmt.Println(cfg.DisableInitialHostLookup)
 		if cfg.DisableInitialHostLookup {
 			// TODO: we could look at system.local to get token and other metadata
 			// in this case.
 			hosts, err = addrsToHosts(cfg.Hosts, cfg.Port)
-			fmt.Println(hosts)
 		} else {
-			//hosts, _, err = s.hostSource.GetHosts()
+		//	hosts, _, err = s.hostSource.GetHosts()
 			hosts = s.hostSource.session.ring.allHosts()
-			fmt.Println(hosts)
 		}
 
 		if err != nil {
@@ -159,8 +154,7 @@ func NewSession(cfg ClusterConfig) (*Session, error) {
 			if existingHost, ok := s.ring.addHostIfMissing(host); ok {
 				existingHost.update(host)
 			}
-      fmt.Println("gets called twice???")
-			fmt.Println(net.ParseIP(host.Peer()))
+
 				s.handleNodeUp(net.ParseIP(host.Peer()), host.Port(), false)
 		}
 	}
@@ -960,11 +954,10 @@ func (iter *Iter) Scan(dest ...interface{}) bool {
 	}
 	// currently only support scanning into an expand tuple, such that its the same
 	// as scanning in more values from a single column
-/*	if len(dest) != iter.meta.actualColCount {
-		fmt.Println("B)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))")
+	if len(dest) != iter.meta.actualColCount {
 		iter.err = fmt.Errorf("gocql: not enough columns to scan into: have %d want %d", len(dest), iter.meta.actualColCount)
 		return false
-	} */
+	}
 
 	// i is the current position in dest, could posible replace it and just use
 	// slices of dest

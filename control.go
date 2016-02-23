@@ -105,9 +105,6 @@ func (c *controlConn) shuffleDial(endpoints []string) (conn *Conn, err error) {
 
 		port := c.session.cfg.Port
 		addr = JoinHostPort(addr, port)
-		fmt.Println("4.---control.go-----108----joiningportandip--")
-		fmt.Println(addr)
-		fmt.Println("-----------------------------------------")
 		host, portStr, err := net.SplitHostPort(addr)
 		if err != nil {
 			host = addr
@@ -121,9 +118,6 @@ func (c *controlConn) shuffleDial(endpoints []string) (conn *Conn, err error) {
 		}
 
 		hostInfo, _ := c.session.ring.addHostIfMissing(&HostInfo{peer: host, port: port})
-		fmt.Println("------------------/////------------------")
-		fmt.Println(hostInfo)
-		fmt.Println(c.session.ring.allHosts())
 		conn, err = c.session.connect(addr, c, hostInfo)
 		if err == nil {
 			return conn, err
@@ -139,9 +133,7 @@ func (c *controlConn) connect(endpoints []string) error {
 	if len(endpoints) == 0 {
 		return errors.New("control: no endpoints specified")
 	}
-fmt.Println("3.--------control.go-------138")
-fmt.Println(endpoints)
-fmt.Println("-----------------------------")
+
 	conn, err := c.shuffleDial(endpoints)
 	if err != nil {
 		return fmt.Errorf("control: unable to connect: %v", err)
@@ -347,11 +339,9 @@ func (c *controlConn) fetchHostInfo(addr net.IP, port int) (*HostInfo, error) {
 	// share code with it.
 
 	hostname, _, err := net.SplitHostPort(c.addr())
-	fmt.Println(hostname)
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch host info, invalid conn addr: %q: %v", c.addr(), err)
 	}
-	fmt.Println(addr)
 
 	isLocal := hostname == addr.String()
 
@@ -368,7 +358,6 @@ func (c *controlConn) fetchHostInfo(addr net.IP, port int) (*HostInfo, error) {
 		fn = func(host *HostInfo) error {
 			// TODO(zariel): should we fetch rpc_address from here?
 			iter := c.query("SELECT data_center, rack, host_id, tokens, release_version FROM system.peers WHERE peer=?", addr)
-			fmt.Println(iter)
 			iter.Scan(&host.dataCenter, &host.rack, &host.hostId, &host.tokens, &host.version)
 			//iter.Scan("Test Datacenter", &host.rack, &host.hostId, &host.tokens, &host.version)
 

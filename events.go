@@ -5,7 +5,6 @@ import (
 	"net"
 	"sync"
 	"time"
-	//"fmt"
 )
 
 type eventDeouncer struct {
@@ -167,7 +166,7 @@ func (s *Session) handleNewNode(host net.IP, port int, waitForBinary bool) {
 	var hostInfo *HostInfo
 	if s.control != nil {
 		var err error
-			hostInfo, err = s.control.fetchHostInfo(host, port)
+		hostInfo, err = s.control.fetchHostInfo(host, port)
 		if err != nil {
 			log.Printf("gocql: events: unable to fetch host info for %v: %v\n", host, err)
 			return
@@ -176,7 +175,6 @@ func (s *Session) handleNewNode(host net.IP, port int, waitForBinary bool) {
 	} else {
 		hostInfo = &HostInfo{peer: host.String(), port: port, state: NodeUp}
 	}
-
 
 	addr := host.String()
 	if s.cfg.IgnorePeerAddr && hostInfo.Peer() != addr {
@@ -234,16 +232,30 @@ func (s *Session) handleNodeUp(ip net.IP, port int, waitForBinary bool) {
 	addr := ip.String()
 	host := s.ring.getHost(addr)
 
+	if host != nil {
 
-	if s.cfg.IgnorePeerAddr && host.Peer() != addr {
-		host.setPeer(addr)
+		if s.cfg.IgnorePeerAddr && host.Peer() != addr {
+			host.setPeer(addr)
+		}
+
+		if s.cfg.HostFilter != nil {
+			if !s.cfg.HostFilter.Accept(host) {
+				return
+			}
+		} else if !s.cfg.Discovery.matchFilter(host) {
+			// TODO: remove this when the host selection policy is more sophisticated
+			return
+		}
+
+		if t := host.Version().nodeUpDelay(); t > 0 && waitForBinary {
+			time.Sleep(t)
+		}
+
+		host.setPort(port)
+		s.pool.hostUp(host)
+		host.setState(NodeUp)
+		return
 	}
-	host.setPort(port)
-	s.pool.hostUp(host)
-	host.setState(NodeUp)
-
-//NOTE: removed host filter options for now
-
 	s.handleNewNode(ip, port, waitForBinary)
 }
 
