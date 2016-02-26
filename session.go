@@ -120,12 +120,12 @@ func NewSession(cfg ClusterConfig) (*Session, error) {
 	var hosts []*HostInfo
 
 	if !cfg.disableControlConn {
+
 		s.control = createControlConn(s)
 		if err := s.control.connect(cfg.Hosts); err != nil {
 			s.Close()
 			return nil, fmt.Errorf("gocql: unable to create session: %v", err)
 		}
-
 		// need to setup host source to check for broadcast_address in system.local
 		localHasRPCAddr, _ := checkSystemLocal(s.control)
 		s.hostSource.localHasRpcAddr = localHasRPCAddr
@@ -136,15 +136,16 @@ func NewSession(cfg ClusterConfig) (*Session, error) {
 			// in this case.
 			hosts, err = addrsToHosts(cfg.Hosts, cfg.Port)
 		} else {
-			hosts, _, err = s.hostSource.GetHosts()
+		//	hosts, _, err = s.hostSource.GetHosts()
+			hosts = s.hostSource.session.ring.allHosts()
 		}
 
 		if err != nil {
 			s.Close()
 			return nil, fmt.Errorf("gocql: unable to create session: %v", err)
 		}
-	} else {
-		// we dont get host info
+} else {
+// we dont get host info
 		hosts, err = addrsToHosts(cfg.Hosts, cfg.Port)
 	}
 
@@ -154,7 +155,7 @@ func NewSession(cfg ClusterConfig) (*Session, error) {
 				existingHost.update(host)
 			}
 
-			s.handleNodeUp(net.ParseIP(host.Peer()), host.Port(), false)
+				s.handleNodeUp(net.ParseIP(host.Peer()), host.Port(), false)
 		}
 	}
 
@@ -951,7 +952,6 @@ func (iter *Iter) Scan(dest ...interface{}) bool {
 	if iter.next != nil && iter.pos == iter.next.pos {
 		go iter.next.fetch()
 	}
-
 	// currently only support scanning into an expand tuple, such that its the same
 	// as scanning in more values from a single column
 	if len(dest) != iter.meta.actualColCount {

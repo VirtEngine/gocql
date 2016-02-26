@@ -300,6 +300,7 @@ func (r *ringDescriber) GetHosts() (hosts []*HostInfo, partitioner string, err e
 			return nil, "", err
 		}
 
+
 		addr, _, err := net.SplitHostPort(r.session.control.addr())
 		if err != nil {
 			// this should not happen, ever, as this is the address that was dialed by conn, here
@@ -335,7 +336,6 @@ func (r *ringDescriber) GetHosts() (hosts []*HostInfo, partitioner string, err e
 
 	r.prevHosts = hosts
 	r.prevPartitioner = partitioner
-
 	return hosts, partitioner, nil
 }
 

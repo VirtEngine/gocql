@@ -231,7 +231,9 @@ func (s *Session) handleRemovedNode(ip net.IP, port int) {
 func (s *Session) handleNodeUp(ip net.IP, port int, waitForBinary bool) {
 	addr := ip.String()
 	host := s.ring.getHost(addr)
+
 	if host != nil {
+
 		if s.cfg.IgnorePeerAddr && host.Peer() != addr {
 			host.setPeer(addr)
 		}
@@ -254,7 +256,6 @@ func (s *Session) handleNodeUp(ip net.IP, port int, waitForBinary bool) {
 		host.setState(NodeUp)
 		return
 	}
-
 	s.handleNewNode(ip, port, waitForBinary)
 }
 
