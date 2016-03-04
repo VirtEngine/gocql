@@ -18,7 +18,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/gocql/gocql/internal/lru"
+	"github.com/megamsys/gocql/internal/lru"
 )
 
 // Session is the interface used by users to interact with the database.
@@ -310,8 +310,7 @@ func (s *Session) executeQuery(qry *Query) *Iter {
 		qry.totalLatency += time.Now().Sub(t).Nanoseconds()
 
 		// Update host
-		host.Mark(iter.err)
-
+		host.Mark(iter.err)       
 		// Exit for loop if the query was successful
 		if iter.err == nil {
 			break
@@ -806,7 +805,7 @@ func (q *Query) PageState(state []byte) *Query {
 // CAS operations which do not end in Cas.
 //
 // See https://issues.apache.org/jira/browse/CASSANDRA-11099
-// https://github.com/gocql/gocql/issues/612
+// https://github.com/megamsys/gocql/issues/612
 func (q *Query) NoSkipMetadata() *Query {
 	q.disableSkipMetadata = true
 	return q
@@ -1280,7 +1279,7 @@ var (
 	ErrUnavailable   = errors.New("unavailable")
 	ErrUnsupported   = errors.New("feature not supported")
 	ErrTooManyStmts  = errors.New("too many statements")
-	ErrUseStmt       = errors.New("use statements aren't supported. Please see https://github.com/gocql/gocql for explaination.")
+	ErrUseStmt       = errors.New("use statements aren't supported. Please see https://github.com/megamsys/gocql for explaination.")
 	ErrSessionClosed = errors.New("session has been closed")
 	ErrNoConnections = errors.New("no connections available")
 	ErrNoKeyspace    = errors.New("no keyspace provided")

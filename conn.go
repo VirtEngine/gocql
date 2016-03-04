@@ -9,7 +9,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/gocql/gocql/internal/lru"
+	"github.com/megamsys/gocql/internal/lru"
 	"io"
 	"io/ioutil"
 	"log"
@@ -20,7 +20,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/gocql/gocql/internal/streams"
+	"github.com/megamsys/gocql/internal/streams"
 )
 
 var (
