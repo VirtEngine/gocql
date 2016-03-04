@@ -294,7 +294,8 @@ func (r *ringDescriber) GetHosts() (hosts []*HostInfo, partitioner string, err e
 			return r.prevHosts, r.prevPartitioner, nil
 		}
 
-		iter.Scan(&localHost.dataCenter, &localHost.rack, &localHost.hostId, &localHost.tokens, &partitioner, &localHost.version)
+		iter.Scan(&localHost.dataCenter, &localHost.rack, &localHost.hostId, 
+			&localHost.tokens, &partitioner, &localHost.version)
 
 		if err = iter.Close(); err != nil {
 			return nil, "", err
